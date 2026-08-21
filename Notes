@@ -1,0 +1,1085 @@
+A microservice is an independently running application responsible for one clearly defined business capability. 
+
+for example : 
+
+User Service 
+
+     ↓ 
+
+Responsible for users 
+
+  
+
+Order Service 
+
+     ↓ 
+
+Responsible for orders 
+
+  
+
+Payment Service 
+
+     ↓ 
+
+Responsible for payments 
+
+  
+
+--> A microservice is an independently running application with its own responsibility, lifecycle and boundary. 
+
+--> In A Java class UserService.java is part of an application, A microservice is user-service(an application by itself.) 
+
+--> Microservices are useful when independent deployment, scaling, team ownership and business boundaries justify the additional distributed-system complexity. 
+
+--> Microservices communicate through HTTP methods 
+
+  
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+  
+
+Monolithic application --> Everything is inside one application: 
+
+              
+
+              ONE APPLICATION 
+
++--------------------------------------+ 
+
+|                                      | 
+
+| User                                 | 
+
+| Order                                | 
+
+| Payment                              | 
+
+| Notification                         | 
+
+| Authentication                       | 
+
+|                                      | 
+
++--------------------------------------+ 
+
+  
+
+With microservices : 
+
+  
+
+User Service       → deploy separately 
+
+Order Service      → deploy separately 
+
+Payment Service    → deploy separately 
+
+Notification       → deploy separately 
+
+  
+
+| Monolith                        | Microservices                              | 
+
+| ------------------------------- | ------------------------------------------ | 
+
+| One deployable application      | Multiple independently deployable services | 
+
+| Usually one codebase            | Multiple service codebases                 | 
+
+| Scale whole application         | Scale individual services                  | 
+
+| Method calls inside application | Network calls                              | 
+
+| Often centralized database      | Services own data/boundaries               | 
+
+| Lower initial complexity        | Higher operational complexity              | 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Service Boundary : 
+
+A service boundary means What does this service own, and what does it NOT own. 
+
+example : 
+
+  
+
+User Service 
+
+------------- 
+
+Owns: 
+
+- User information 
+
+- User-related business rules 
+
+Doesn't own: 
+
+- Orders 
+
+- Payments 
+
+  
+
+Order Service 
+
+------------- 
+
+Owns: 
+
+- Orders 
+
+- Order business rules 
+
+Doesn't own: 
+
+- User database 
+
+- Payment database 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Every entity does not need its own Microservice because 
+
+Suppose you have: 
+
+1. Customer 
+
+2. Address 
+
+3. Phone 
+
+4. ProfilePicture 
+
+--> You don't automatically create: 
+
+1. Customer Service 
+
+2. Address Service 
+
+3. Phone Service 
+
+4. ProfilePicture Service, 
+
+Instead: 
+
+Customer Service 
+
+   | 
+
+   +-- Customer 
+
+   +-- Address 
+
+   +-- Phone 
+
+   +-- ProfilePicture 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+A network is called different from a Java method call because 
+
+in Normal Java : userService.getUser(1001); 
+
+--> Usually the method executes inside the same application. 
+
+But in microservices: 
+
+Order Service 
+
+      | 
+
+      | HTTP 
+
+      ↓ 
+
+User Service 
+
+--> Now many things can happen: 
+
+  
+
+1. User Service may be down. 
+
+2. User Service may be slow. 
+
+3. Network may fail. 
+
+4. User Service may return an error. 
+
+5. User Service may be overloaded. 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+HTTP methods: 
+
+GET --> Retrieve information. 
+
+POST --> Create/process something. 
+
+PUT --> Update information. 
+
+DELETE --> Remove something 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Microservice 
+
+    ↓ 
+
+Independent application 
+
+    ↓ 
+
+Owns business capability 
+
+    ↓ 
+
+Owns its data 
+
+    ↓ 
+
+Exposes API 
+
+    ↓ 
+
+Communicates with other services 
+
+    ↓ 
+
+Network can fail 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+An API contract is simply the agreement between a service and the applications using it. 
+
+  
+
+It tells consumers: 
+
+1. What endpoint exists? 
+
+2. What input is required? 
+
+3. What output will I get? 
+
+4. What status code will I receive? 
+
+5. What happens when something fails? 
+
+Example : GET /api/orders/1001 
+
+--> The consumer should understand the response without looking inside your database or Java entity classes. 
+
+  
+
+A good API is: 
+
+Clear --> GET /api/customers/123 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+DTO = Data Transfer Object 
+
+--> A DTO is an object specifically created to send data across a boundary. 
+
+--> Suppose your internal User entity is :  
+
+UserEntity : 
+
+1. id 
+
+2. name 
+
+3. email 
+
+4. password 
+
+You probably don't want to send all of this to another service,So create: 
+
+UserResponse : 
+
+1. id 
+
+2. name 
+
+3. email 
+
+Then: 
+
+Database Entity 
+
+      ↓ 
+
+     DTO 
+
+      ↓ 
+
+     API 
+
+      ↓ 
+
+Other Service 
+
+--> The DTO gives you control over what becomes public. 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Error Handling : 
+
+In microservices, don't assume everything succeeds. 
+
+For : Order Service → User Service 
+
+--> different failures mean different things. 
+
+  
+
+Case 1 : 
+
+User doesn't exist. 
+
+User Service 
+
+     ↓ 
+
+404 Not Found 
+
+  
+
+Case 2 : 
+
+User Service itself has an error. 
+
+User Service 
+
+     ↓ 
+
+    5xx 
+
+  
+
+Case 3 : 
+
+User Service is unavailable. 
+
+Connection failure 
+
+  
+
+Case 4 : 
+
+User Service is extremely slow. 
+
+Timeout 
+
+  
+
+-->These are not the same problem and shouldn't blindly produce the same response. 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+| Code    | Meaning                    | Simple explanation                                      | 
+
+| ------- | -------------------------- | ------------------------------------------------------- | 
+
+| **200** | OK                         | Request successful                                      | 
+
+| **201** | Created                    | New resource created successfully                       | 
+
+| **202** | Accepted                   | Request received, processing will happen later          | 
+
+| **204** | No Content                 | Successful, but nothing to return                       | 
+
+| **301** | Moved Permanently          | Resource moved to a new URL                             | 
+
+| **302** | Found / Temporary Redirect | Temporarily redirected                                  | 
+
+| **303** | See Other                  | Redirect to another URL/resource                        | 
+
+| **304** | Not Modified               | Data hasn't changed; use cached version                 | 
+
+| **400** | Bad Request                | Client sent invalid data/request                        | 
+
+| **401** | Unauthorized               | Authentication required/invalid                         | 
+
+| **403** | Forbidden                  | Authenticated, but not allowed                          | 
+
+| **404** | Not Found                  | Resource/API endpoint doesn't exist                     | 
+
+| **405** | Method Not Allowed         | HTTP method not supported (e.g. POST instead of GET)    | 
+
+| **409** | Conflict                   | Request conflicts with existing data                    | 
+
+| **422** | Unprocessable Content      | Request format is valid, but data fails validation      | 
+
+| **429** | Too Many Requests          | Too many requests in a short time                       | 
+
+| **500** | Internal Server Error      | Server-side error                                       | 
+
+| **501** | Not Implemented            | Server doesn't support this functionality               | 
+
+| **502** | Bad Gateway                | Server received an invalid response from another server | 
+
+| **503** | Service Unavailable        | Server temporarily unavailable/overloaded               | 
+
+| **504** | Gateway Timeout            | Server didn't receive a response in time                | 
+
+| **505** | HTTP Version Not Supported | Server doesn't support the HTTP version used            | 
+
+  
+
+Easy way to remember 
+
+2xx → Success  
+
+3xx → Redirection  
+
+4xx → Client/request problem  
+
+5xx → Server problem  
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Configuration --> user.service.base-url=http://localhost:8081 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+API Contract 
+
+    ↓ 
+
+What do I promise consumers? 
+
+  
+
+DTO 
+
+    ↓ 
+
+What data do I expose? 
+
+  
+
+Error Handling 
+
+    ↓ 
+
+What happens when things fail? 
+
+  
+
+Configuration 
+
+    ↓ 
+
+What changes between environments? 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+An API Gateway is a common entry point between the client and backend services. 
+
+--> Instead of  
+
+Client 
+
+|----> User 
+
+|----> Order 
+
+|----> Payment 
+
+|----> Product 
+
+  
+
+--> We have  
+
+             Client 
+
+                | 
+
+                v 
+
+          API Gateway 
+
+          /    |    \ 
+
+         /     |     \ 
+
+        v      v      v 
+
+      User   Order  Payment 
+
+  
+
+GET /api/users/1001 
+
+goes: 
+
+Client 
+
+↓ 
+
+Gateway 
+
+↓ 
+
+User Service 
+
+  
+
+GET /api/orders/5001 
+
+goes: 
+
+Client 
+
+↓ 
+
+Gateway 
+
+↓ 
+
+Order Service 
+
+  
+
+Gateways can later handle things such as: 
+
+1. Authentication 
+
+2. Rate limiting 
+
+3. Request filtering 
+
+4. Routing 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Service discovery helps one service find the current location of another service without knowing the exact IP address or port number.so,  
+
+Instead of saying : "Call 10.10.1.21:8081" 
+
+we say : "Find USER-SERVICE" 
+
+  
+
+Order Service 
+
+      ↓ 
+
+Service Discovery 
+
+      ↓ 
+
+In which server is my user service  
+
+      ↓ 
+
+User Service instance 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Database Ownership 
+
+Suppose: 
+
+User Service → User data 
+
+Order Service → Order data 
+
+Payment Service → Payment data 
+
+  
+
+Then: 
+
+  
+
+Order Service 
+
+      | 
+
+      X 
+
+      | Don't directly query 
+
+      v 
+
+User Database 
+
+  
+
+Instead: 
+
+  
+
+Order Service 
+
+      | 
+
+      | API call 
+
+      v 
+
+User Service 
+
+      | 
+
+      v 
+
+User Database 
+
+  
+
+--> Because User Service owns User data. 
+
+--> Not every Microservice need a separate physical database 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Many services 
+
+     ↓ 
+
+Client complexity 
+
+     
+
+API Gateway 
+
+     ↓ 
+
+Common entry point 
+
+  
+
+Many service instances 
+
+     ↓ 
+
+Location problem 
+
+     ↓ 
+
+Service Discovery 
+
+  
+
+Many databases/data areas 
+
+     ↓ 
+
+Ownership problem 
+
+     ↓ 
+
+Each service owns its data 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+--> A timeout does NOT make Payment Service faster it protects Order Service from waiting forever. 
+
+--> Retry means the request failed, try again(Useful when the failure is temporary). 
+
+Idempotency means : Doing the same request multiple times produces the same final result as doing it once. 
+
+--> Payment Service is down,Circuit breaker says:"Payment is clearly unhealthy. Stop calling it for a while." 
+
+Circuit Breaker States : 
+
+1. CLOSED  
+
+--> Everything is working normally. 
+
+Order → Circuit Breaker → Payment  
+
+--> Requests are allowed. 
+
+2. OPEN  
+
+--> Payment Service keeps failing. 
+
+Circuit Breaker opens: 
+
+Order → Circuit Breaker → Payment 
+
+--> Requests don't even reach Payment Service.Instead, you can immediately return:"Payment service temporarily unavailable" 
+
+3. HALF-OPEN  
+
+--> After some time, Circuit Breaker tests the service: 
+
+Circuit Breaker → Payment Service 
+
+                     ↓ 
+
+                   Works?  
+
+If it works → CLOSED again. 
+
+If it fails → OPEN again. 
+
+--> Fallback means : What alternative response should we provide when the normal operation cannot complete? 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Working of resilience patterns  
+
+  
+
+Client 
+
+  ↓ 
+
+API Gateway 
+
+  ↓ 
+
+Order Service 
+
+  ↓ 
+
+Payment Service 
+
+Timeout : Don't wait forever 
+
+Retry : Try again for temporary failures 
+
+Circuit Breaker : Stop repeatedly calling an unhealthy service 
+
+Fallback : Give the client a clear and truthful response 
+
+  
+
+In one line: 
+
+Timeout → limit waiting 
+
+Retry → recover temporary failure 
+
+Circuit Breaker → stop repeated failure 
+
+Fallback → handle failure gracefully 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Service-to-Service Communication : 
+
+  
+
+Client 
+
+  ↓ 
+
+Order Service 
+
+  | 
+
+  | REST call 
+
+  ↓ 
+
+User Service 
+
+  | 
+
+  | UserResponse 
+
+  ↓ 
+
+Order Service 
+
+  ↓ 
+
+Client 
+
+  
+
+--> User Service owns user information. 
+
+--> Order Service needs user information. 
+
+Therefore: 
+
+Order Service 
+
+      | 
+
+      | API 
+
+      ↓ 
+
+User Service 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Provider vs Consumer : 
+
+Order Service → User Service 
+
+order service --> Consumer(It consumes User Service's API) 
+
+user service --> Provider(provides an API) 
+
+  
+
+Order Service 
+
+   Consumer 
+
+      | 
+
+      | HTTP 
+
+      ↓ 
+
+User Service 
+
+   Provider 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+RestClient is a tool/class used by one application to communicate with another application through REST APIs. 
+
+Example : 
+
+Suppose you have 
+
+Order Service  →  User Service 
+
+--> Order Service needs the user's details. 
+
+--> It can use RestClient to call : GET http://user-service/users/101 
+
+--> RestClient allows one service to call another service's REST API. 
+
+--> RestClient is not a REST API itself. 
+
+REST API → The API that receives requests 
+
+RestClient → The client that sends requests to that API 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+UserClient is usually a custom class/interface created by developers to communicate with the User Service. 
+
+  
+
+                         CLIENT 
+
+                            | 
+
+                            ↓ 
+
+                     API GATEWAY 
+
+                            | 
+
+             +--------------+--------------+ 
+
+             |              |              | 
+
+             ↓              ↓              ↓ 
+
+        USER SERVICE   ORDER SERVICE   PAYMENT SERVICE 
+
+             |              |              | 
+
+             ↓              ↓              ↓ 
+
+          User DB        Order DB       Payment DB 
+
+                            | 
+
+                            | 
+
+                            ↓ 
+
+                       UserClient 
+
+                            | 
+
+                            ↓ 
+
+                      User Service 
+
+  
+
+What are the services? 
+
+1. User Service 
+
+2. Order Service 
+
+3. Payment Service 
+
+--> Each is an independent application. 
+
+--> Each owns a business capability. 
+
+here, 
+
+User Service owns Users 
+
+Order Service owns Orders 
+
+Payment Service owns Payments 
+
+  
+
+--> they communicate through HTTP/REST 
+
+--> service URLs go to application.properties 
+
+--> client enter the system through API Gateway 
+
+--> services find each other through configurations (small systems) or through Service Discovery (large systems) 
+
+User Service owns User database 
+
+Order Service owns Order database 
+
+Payment Service owns Payment database 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Rules of microservices : 
+
+1. One microservice = one meaningful business responsibility. 
+
+2. Each service owns its data and database 
+
+3. Network calls can fail. 
+
+4. Keep API contracts clean. 
+
+5. Use DTOs at service boundaries. 
+
+6. Use an API Gateway when many services exist. 
+
+7. Use resilience patterns like Timeout, Retry, Circuit Breaker and Fallback because dependencies fail. 
+
+8. Keep service-to-service HTTP communication behind a client component. 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Service Registry : A central place where all microservices register themselves and their locations so other services can find and communicate with them. 
+
+--> The registry stores information about where services are running. 
+
+              SERVICE REGISTRY 
+
+             ┌─────────────────┐ 
+
+             │ USER-SERVICE    │ → 8081 
+
+             │ ORDER-SERVICE   │ → 8082 
+
+             └─────────────────┘ 
+
+  
+
+Eureka: A Service Registry developed by Netflix, used in microservices to register and discover services. 
+
+--> Eureka is used for Service Discovery which helps microservices to: 
+
+1. Register themselves with Eureka. 
+
+2. Find other microservices. 
+
+3. Handle changing IP addresses/ports automatically. 
+
+4. Avoid hardcoding service URLs. 
+
+  
+
+Eureka registration in application.properties :  
+
+--> User Service has: 
+
+spring.application.name=USER-SERVICE 
+
+server.port=8081 
+
+--> And it tells Eureka : eureka.client.service-url.defaultZone=http://localhost:8761/eureka/ 
+
+--> so in user service application.properties we write : 
+
+spring.application.name=USER-SERVICE 
+
+server.port=8081 
+
+eureka.client.service-url.defaultZone=http://localhost:8761/eureka/ 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+Config Server : It tells What configuration should a microservice use 
+
+--> Config Server is another Spring Boot application. 
+
+Its job is to: 
+
+1. Receive a configuration request. 
+
+2. Find the correct configuration. 
+
+3. Return it to the microservice. 
+
+  
+
+difference : 
+
+Eureka       → WHERE is my service? 
+
+Config Server → WHAT configuration should it use? 
+
+Gateway      → WHERE should this request go? 
+
+  
+
+Spring Profiles : A profile that allows the same Java application to use different configuration depending on the environment(development, testing, production etc ). 
+
+Example :  
+
+application-dev.properties 
+
+application-test.properties 
+
+application-prod.properties 
+
+  
+
+--> Config Repository : A central folder where configuration files are stored. 
+
+--> @EnableConfigServer tells Spring Boot application to act as a Config Server. 
+
+                    ┌─────────────────────┐ 
+
+                    │ Configuration Repo  │ 
+
+                    └──────────┬──────────┘ 
+
+                               ↓ 
+
+                    ┌─────────────────────┐ 
+
+                    │    Config Server    │ 
+
+                    │       :8888         │ 
+
+                    └──────────┬──────────┘ 
+
+                               ↓ 
+
+                 ┌─────────────┼─────────────┐ 
+
+                 ↓             ↓             ↓ 
+
+           User Service   Order Service   Gateway 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
