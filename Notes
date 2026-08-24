@@ -358,7 +358,7 @@ If it fails → OPEN again.
 --> Fallback means : What alternative response should we provide when the normal operation cannot complete?
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Working of resilience patterns
-
+--> Resilience means the application can handle failures without completely falling apart.
 
 Client
   ↓
