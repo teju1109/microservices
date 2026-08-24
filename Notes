@@ -334,6 +334,7 @@ Each service owns its data
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> A timeout does NOT make Payment Service faster it protects Order Service from waiting forever.
 --> Retry means the request failed, try again(Useful when the failure is temporary).
+
 Idempotency means : Doing the same request multiple times produces the same final result as doing it once.
 --> Payment Service is down,Circuit breaker says:"Payment is clearly unhealthy. Stop calling it for a while."
 Circuit Breaker States :
@@ -359,6 +360,12 @@ If it fails → OPEN again.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Working of resilience patterns
 --> Resilience means the application can handle failures without completely falling apart.
+--> They prepare for:
+1. service down
+2. service slow
+3. network failure
+4. temporary failure
+5. repeated failure
 
 Client
   ↓
@@ -378,6 +385,19 @@ Timeout → limit waiting
 Retry → recover temporary failure
 Circuit Breaker → stop repeated failure
 Fallback → handle failure gracefully
+
+             Order Service
+                   ↓
+             ┌─────────────┐
+             │  TIMEOUT    │
+             │    ↓        │
+             │   RETRY     │
+             │    ↓        │
+             │  CIRCUIT    │
+             │  BREAKER    │
+             └──────┬──────┘
+                    ↓
+               User Service
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Service-to-Service Communication :
 
@@ -542,3 +562,6 @@ application-prod.properties
                  ↓             ↓             ↓
            User Service   Order Service   Gateway
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Bulkhead is a resilience technique that isolates resources so that one failing or slow dependency cannot consume all the resources of the application.
+Bulkhead = Separate resources so one failure doesn't affect everything.
+
