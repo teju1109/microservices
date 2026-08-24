@@ -356,7 +356,23 @@ Circuit Breaker → Payment Service
 
 If it works → CLOSED again.
 If it fails → OPEN again.
---> Fallback means : What alternative response should we provide when the normal operation cannot complete?
+
+--> Circuit Breaker code example :
+resilience4j.circuitbreaker.instances.userService.slidingWindowSize=5
+resilience4j.circuitbreaker.instances.userService.minimumNumberOfCalls=5
+resilience4j.circuitbreaker.instances.userService.failureRateThreshold=50
+resilience4j.circuitbreaker.instances.userService.waitDurationInOpenState=10s
+resilience4j.circuitbreaker.instances.userService.permittedNumberOfCallsInHalfOpenState=2
+
+| Setting                                   | Meaning                                           |
+| ----------------------------------------- | ------------------------------------------------- |
+| `slidingWindowSize=5`                     | Look at the latest 5 calls                        |
+| `minimumNumberOfCalls=5`                  | Wait for at least 5 calls before judging failures |
+| `failureRateThreshold=50`                 | 50% or more failures can open the circuit         |
+| `waitDurationInOpenState=10s`             | Stay OPEN for 10 seconds                          |
+| `permittedNumberOfCallsInHalfOpenState=2` | Allow 2 test calls during HALF-OPEN               |
+
+--> Fallback means : What alternative response should we provide when the normal operation cannot complete
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Working of resilience patterns
 --> Resilience means the application can handle failures without completely falling apart.
