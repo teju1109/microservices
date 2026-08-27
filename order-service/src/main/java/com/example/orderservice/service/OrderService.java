@@ -1,23 +1,56 @@
 package com.example.orderservice.service;
 
+import com.example.orderservice.dto.CreateOrderRequest;
 import com.example.orderservice.model.Order;
-import org.springframework.stereotype.Service;
+import com.example.orderservice.model.OrderItem;
+import com.example.orderservice.repository.OrderRepository;
 
-import java.util.HashMap;
-import java.util.Map;
+import jakarta.transaction.Transactional;
+
+import org.springframework.stereotype.Service;
 
 @Service
 public class OrderService {
 
-    private final Map<Long, Order> orders = new HashMap<>();
+    private final OrderRepository orderRepository;
 
-    public OrderService() {
-        orders.put(5001L, new Order(5001L, 1001L));
-        orders.put(5002L, new Order(5002L, 1002L));
-        orders.put(5003L, new Order(5003L, 1003L));
+    public OrderService(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
+
+    @Transactional
+    public Order createOrder(CreateOrderRequest request) {
+
+        // Create Order
+        Order order = new Order();
+
+        // Set user ID
+        order.setUserId(request.getUserId());
+
+        // Create Order Items
+        for (var itemRequest : request.getItems()) {
+
+            OrderItem orderItem = new OrderItem();
+
+            orderItem.setProductId(itemRequest.getProductId());
+            orderItem.setQuantity(itemRequest.getQuantity());
+
+            // IMPORTANT:
+            // Connect OrderItem to its parent Order
+            orderItem.setOrder(order);
+
+            order.getItems().add(orderItem);
+        }
+
+        // Save Order
+        // Order ID will be generated automatically by MySQL
+        // OrderItems will also be saved because of CascadeType.ALL
+        return orderRepository.save(order);
     }
 
     public Order getOrderById(Long orderId) {
-        return orders.get(orderId);
+
+        return orderRepository.findById(orderId)
+                .orElse(null);
     }
 }
