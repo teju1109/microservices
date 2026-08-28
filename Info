@@ -1,0 +1,19 @@
+USER-SERVICE
+Owns:
+1. User information
+2. User identity/profile
+3. User-related operations
+4. User validation
+5. User database
+Exposes:
+- User APIs
+
+ORDER-SERVICE
+Owns:
+1. Order information
+2. Order items
+3. Order-related operations
+4. Order processing
+5. Order database
+Exposes:
+- Order APIs
