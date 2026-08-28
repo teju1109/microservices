@@ -581,3 +581,63 @@ application-prod.properties
 Bulkhead is a resilience technique that isolates resources so that one failing or slow dependency cannot consume all the resources of the application.
 Bulkhead = Separate resources so one failure doesn't affect everything.
 
+Synchronous vs Asynchronous Communication :
+--> The easiest way to remember the difference is:
+Synchronous = Wait for the answer.
+Asynchronous = Don't wait; continue working.
+| Synchronous                       | Asynchronous                |
+| --------------------------------- | --------------------------- |
+| Caller waits                      | Caller doesn't wait         |
+| Usually request → response        | Usually event/message       |
+| Immediate response needed         | Processing can happen later |
+| Tightly dependent on availability | Consumer can process later  |
+| Example: Verify user              | Example: Send notification  |
+
+Saga Pattern : Break a distributed business operation into local transactions and, if a later step fails, perform a compensating action where required.
+--> They do the work step-by-step, and if something later fails, perform a business action to undo the earlier successful work.
+Example :
+Create Order
+     ↓
+   SUCCESS
+     ↓
+Process Payment
+     ↓
+   SUCCESS
+     ↓
+Update Order
+     ↓
+   FAILED ❌
+     ↓
+Refund Payment
+--> The refund is called a compensating action.
+
+Observability : It is the ability to understand what is happening inside your distributed system by looking at information produced by the system.
+It helps us answer questions like:
+1. Where did the request fail?
+2. Which service was slow?
+3. Which service did the request reach?
+4. Did User Service respond?
+5. Was the database available?
+6. What happened before the error?
+7. Did the system recover?
+
+Correlation ID :
+A correlation ID is a unique identifier used to connect logs/events belonging to the same request or operation across multiple services.
+--> The easiest way to understand distributed logging is by creating a unique ID.
+--> Imagine 1,000 requests are happening at the same time.
+But with correlation IDs:
+ABC-123 → Creating order
+ABC-123 → Checking user
+ABC-123 → User verified
+ABC-123 → Order saved
+You can search : ABC-123 and see everything related to that request.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
