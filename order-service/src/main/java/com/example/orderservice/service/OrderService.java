@@ -1,5 +1,6 @@
 package com.example.orderservice.service;
 
+import com.example.orderservice.client.UserClient;
 import com.example.orderservice.dto.CreateOrderRequest;
 import com.example.orderservice.model.Order;
 import com.example.orderservice.model.OrderItem;
@@ -13,18 +14,25 @@ import org.springframework.stereotype.Service;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final UserClient userClient;
 
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(
+            OrderRepository orderRepository,
+            UserClient userClient) {
+
         this.orderRepository = orderRepository;
+        this.userClient = userClient;
     }
 
     @Transactional
     public Order createOrder(CreateOrderRequest request) {
 
+        // Verify user exists
+        userClient.getUserById(request.getUserId());
+
         // Create Order
         Order order = new Order();
 
-        // Set user ID
         order.setUserId(request.getUserId());
 
         // Create Order Items
@@ -35,16 +43,11 @@ public class OrderService {
             orderItem.setProductId(itemRequest.getProductId());
             orderItem.setQuantity(itemRequest.getQuantity());
 
-            // IMPORTANT:
-            // Connect OrderItem to its parent Order
             orderItem.setOrder(order);
 
             order.getItems().add(orderItem);
         }
 
-        // Save Order
-        // Order ID will be generated automatically by MySQL
-        // OrderItems will also be saved because of CascadeType.ALL
         return orderRepository.save(order);
     }
 

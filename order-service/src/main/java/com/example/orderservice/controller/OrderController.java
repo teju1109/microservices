@@ -39,53 +39,34 @@ public class OrderController {
 
         Order order = orderService.createOrder(request);
 
-        return ResponseEntity
-                .status(201)
-                .body(order);
+        return ResponseEntity.status(201).body(order);
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<?> getOrder(
-            @PathVariable Long orderId) {
+    public ResponseEntity<?> getOrder(@PathVariable Long orderId) {
 
-        // Get order from database
         Order order = orderService.getOrderById(orderId);
 
-        // Order not found
         if (order == null) {
-
-            return ResponseEntity
-                    .status(404)
-                    .body(
-                        new ErrorResponse(
-                            "Order not found with id: " + orderId
-                        )
-                    );
+            return ResponseEntity.status(404)
+                    .body(new ErrorResponse(
+                            "Order not found with id: " + orderId));
         }
 
-        // Create Circuit Breaker
         CircuitBreaker circuitBreaker =
                 circuitBreakerFactory.create("userService");
 
-        // Call User Service through Circuit Breaker
         UserResponse user = circuitBreaker.run(
                 () -> userClient.getUserById(order.getUserId()),
                 throwable -> null
         );
 
-        // User Service unavailable
         if (user == null) {
-
-            return ResponseEntity
-                    .status(503)
-                    .body(
-                        new ErrorResponse(
-                            "User Service is currently unavailable"
-                        )
-                    );
+            return ResponseEntity.status(503)
+                    .body(new ErrorResponse(
+                            "User Service is currently unavailable"));
         }
 
-        // Build response
         OrderResponse response = new OrderResponse(
                 order.getOrderId(),
                 order.getUserId(),
